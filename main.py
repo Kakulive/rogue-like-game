@@ -6,8 +6,8 @@ PLAYER_ICON = '🐑'
 PLAYER_START_X = 3
 PLAYER_START_Y = 3
 
-BOARD_WIDTH = 39
-BOARD_HEIGHT = 39
+MAP_WIDTH = 45
+MAP_HEIGHT = 45
 
 
 def create_player():
@@ -23,8 +23,12 @@ def create_player():
 
 def main():
     # player = create_player()
-    board = engine.create_board(BOARD_WIDTH, BOARD_HEIGHT)
-    ui.display_board(board)
+    game_map = engine.create_map(MAP_WIDTH, MAP_HEIGHT)
+    ui.print_map(game_map)
+    engine.create_rooms(game_map)
+    ui.print_map(game_map)
+    rooms_coordinates = engine.get_room_coordinates(game_map)
+    print(rooms_coordinates)
 
     # util.clear_screen()
     # is_running = True

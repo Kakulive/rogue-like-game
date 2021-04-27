@@ -1,61 +1,79 @@
 import random
 
-EMPTY_SYMBOL = "-"
-NUMER_OF_ROOMS = 9
-BOARD_SLICES = 3
+MAP_WIDTH = 45
+MAP_HEIGHT = 45
+NUMBER_OF_MAP_SLICES_VER = 3
+NUMBER_OF_MAP_SLICES_HOR = 3
+MINIMUM_ROOM_WIDTH = 6
+MINIMUM_ROOM_HEIGHT = 6
+# FILLER = color("-", fg="red")
+# WALL_SYMBOL = "\033[91m" + "%" + "\033[0m"
+FILLER = "-"
+WALL_SYMBOL = "W"
 
-def temp_print_board(board):
-    for row in board:
-        print(row)
-    print("\n\n")
-
-def create_board(width, height):
-    board = []
+def create_map(width, height):
+    game_map = []
     for y in range(height):
-        row = []
+        temp_row = []
         for x in range(width):
-            row.append(EMPTY_SYMBOL)
-        board.append(row)
+            temp_row.append(FILLER)
+        game_map.append(temp_row)
 
-    return board
+    return game_map
 
-def create_rooms(board, width, height):
-    room_width = random.choice(list(range(1,width//BOARD_SLICES + 1)))
-    room_height = random.choice(list(range(1,height//BOARD_SLICES + 1)))
-    rooms = []
-    for _ in range(NUMER_OF_ROOMS):
-        temp_room = create_board(room_width, room_height)
-        rooms.append(temp_room)
+def is_room_dim_valid(room_coords, room_width, room_height, max_width, max_height):
+    if max_width - (room_coords[0]+room_width) > 0 and max_height - (room_coords[1]+room_height) > 0:
+        return True
+    else:
+        return False
 
-    return rooms
+def insert_room(room_coords, room_height, room_width, game_map, number_to_replace):
+    for y in range(room_coords[1],room_coords[1] + room_height):
+        for x in range(room_coords[0],room_coords[0] + room_width):
+            if y == room_coords[1] or y == room_coords[1] + room_height - 1 or x == room_coords[0] or x == room_coords[0] + room_width -1:
+                game_map[y][x] = WALL_SYMBOL
+            else:
+                game_map[y][x] = number_to_replace
 
-def room_placement(board, rooms, width, height):
-    start_line = 0
-    end_line = height//BOARD_SLICES
+def create_rooms(game_map):
+    number_to_replace = "1"
+
+    start_y_coord = 0
+    end_y_coord = MAP_HEIGHT//3
     
-    board_slices = []
+    for _ in range(NUMBER_OF_MAP_SLICES_VER):
+        start_x_coord = 0
+        end_x_coord = MAP_WIDTH//3
+        for _ in range(NUMBER_OF_MAP_SLICES_HOR):
+            room_width = random.choice(list(range(MINIMUM_ROOM_WIDTH,((MAP_WIDTH//NUMBER_OF_MAP_SLICES_HOR)-2))))
+            room_height = random.choice(list(range(MINIMUM_ROOM_HEIGHT,((MAP_HEIGHT//NUMBER_OF_MAP_SLICES_VER)-2))))
+            room_coords = (random.choice(list(range(start_x_coord,end_x_coord))),random.choice(list(range(start_y_coord,end_y_coord))))
+            while is_room_dim_valid(room_coords, room_width, room_height, end_x_coord, end_y_coord) == False:
+                room_coords = (random.choice(list(range(start_x_coord,end_x_coord))),random.choice(list(range(start_y_coord,end_y_coord))))
 
-    for _ in range(BOARD_SLICES):
-        init_row = 0
-        init_col = width//BOARD_SLICES
-        for _ in range(BOARD_SLICES):
-            temp_slice = []
-            for row in board[start_line:end_line]:
-                temp_slice.append([x for x in row[init_row:init_col]])
-            board_slices.append(temp_slice)
-            init_row += width//BOARD_SLICES
-            init_col += height//BOARD_SLICES
-        start_line += height//BOARD_SLICES
-        end_line += height//BOARD_SLICES
-    
-    return board_slices
+            insert_room(room_coords, room_height, room_width, game_map, number_to_replace)
 
-board = create_board(6,6)
-rooms = create_rooms(board, 6, 6)
-mini_board = room_placement(board,rooms, 6, 6)
-temp_print_board(board)
-temp_print_board(rooms)
-temp_print_board(mini_board)
+            number_to_replace = str(int(number_to_replace) + 1)
+            start_x_coord += MAP_WIDTH//NUMBER_OF_MAP_SLICES_HOR
+            end_x_coord += MAP_WIDTH//NUMBER_OF_MAP_SLICES_HOR
+
+        start_y_coord += MAP_HEIGHT//NUMBER_OF_MAP_SLICES_VER
+        end_y_coord += MAP_HEIGHT//NUMBER_OF_MAP_SLICES_VER
+
+def get_room_coordinates(game_map):
+    rooms_coordinates = []
+    current_room_numbers = [str(x+1) for x in range(NUMBER_OF_MAP_SLICES_VER * NUMBER_OF_MAP_SLICES_HOR)]
+    for room in current_room_numbers:
+        single_room = []
+        for row_index in range(len(game_map)):
+            for column_index in range(len(game_map[row_index])):
+                if game_map[row_index][column_index] == room:
+                    single_room.append((row_index, column_index))
+        rooms_coordinates.append(single_room)
+    return rooms_coordinates
+
+def gate_generator_room_1(rooms_coordinates):
+    pass
 
 
 def put_player_on_board(board, player):
