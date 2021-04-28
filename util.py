@@ -1,7 +1,6 @@
 import sys
 import os
 
-
 def key_pressed():
     try:
         import tty, termios
@@ -24,7 +23,6 @@ def key_pressed():
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
-
 
 def clear_screen():
     if os.name == "nt":
