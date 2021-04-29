@@ -29,3 +29,4 @@ def clear_screen():
         os.system('cls')
     else:
         os.system('clear')
+

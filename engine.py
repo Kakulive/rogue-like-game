@@ -93,11 +93,11 @@ def get_room_coordinates(game_map):
         rooms_coordinates.append(single_room)
     return rooms_coordinates
 
-def gate_generator_room_1(game_map, rooms_coordinates):
+def gate_generator_east(game_map, rooms_coordinates, room_number):
     min_col = 9999
     max_col = 0
     max_row = 0
-    for coord in rooms_coordinates[0]:
+    for coord in rooms_coordinates[room_number-1]:
         if coord[1] > max_row:
             max_row = coord[1]
 
@@ -113,6 +113,70 @@ def gate_generator_room_1(game_map, rooms_coordinates):
     insert_into_map(game_map, GATE_SYMBOL, final_row, final_col)
 
     return (final_col, final_row)
+
+def gate_generator_west(game_map, rooms_coordinates, room_number):
+    min_col = 9999
+    max_col = 0
+    min_row = 9999
+    for coord in rooms_coordinates[room_number-1]:
+        if coord[1] < min_row:
+            min_row = coord[1]
+
+        if coord[0] > max_col:
+            max_col = coord[0]
+
+        if coord[0] < min_col:
+            min_col = coord[0]
+    
+    final_row = min_row - 1
+    final_col = random.choice(list(range(min_col,max_col)))
+
+    insert_into_map(game_map, GATE_SYMBOL, final_row, final_col)
+
+    return (final_col, final_row)
+
+def gate_generator_north(game_map, rooms_coordinates, room_number):
+    min_col = 9999
+    min_row = 9999
+    max_row = 0
+    for coord in rooms_coordinates[room_number-1]:
+        if coord[0] < min_col:
+            min_col = coord[0]
+
+        if coord[1] > max_row:
+            max_row = coord[1]
+
+        if coord[1] < min_row:
+            min_row = coord[1]
+    
+    final_col = min_col - 1
+    final_row = random.choice(list(range(min_row,max_row)))
+
+    insert_into_map(game_map, GATE_SYMBOL, final_row, final_col)
+
+    return (final_col, final_row)
+
+def gate_generator_south(game_map, rooms_coordinates, room_number):
+    max_col = 0
+    min_row = 9999
+    max_row = 0
+    for coord in rooms_coordinates[room_number-1]:
+        if coord[0] > max_col:
+            max_col = coord[0]
+
+        if coord[1] > max_row:
+            max_row = coord[1]
+
+        if coord[1] < min_row:
+            min_row = coord[1]
+    
+    final_col = max_col + 1
+    final_row = random.choice(list(range(min_row,max_row)))
+
+    insert_into_map(game_map, GATE_SYMBOL, final_row, final_col)
+
+    return (final_col, final_row)
+
 
 def insert_into_map(game_map, symbol, x, y):
     game_map[y][x] = symbol
