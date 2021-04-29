@@ -9,15 +9,15 @@ def print_map(game_map):
     print("\n\n")
 
 def get_single_input(message):
-    user_input = input(message)
+    user_input = input(f"{message}: ")
+    print("\n")
     
     return user_input
 
-def put_player_on_board(game_map, player, rooms_coordinates):
-    player_coords = random.choice(rooms_coordinates[0])
-    game_map[player_coords[0]][player_coords[1]] = player["icon"]
-
-    return player_coords
+def print_choose_from_list(label, choices):
+    print(label)
+    for index, value in enumerate(choices):
+        print(f"({index +1}): {value}")
 
 def main_screen():
     print("""
