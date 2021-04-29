@@ -1,5 +1,6 @@
 import random
 import ui as ui
+import copy
 
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
@@ -13,23 +14,25 @@ FILLER = "-"
 WALL_SYMBOL = "W"
 GATE_SYMBOL = "]"
 
-def create_player():
-    player = {"race": 'human', "hp":30, "atck":15, "load":150}
+def create_player(player_init_coords):
+    player = {"hp":30, "atck":15, "load":150}
+    player["coords"] = list(player_init_coords)
 
-    name = ui.get_single_input("What is your name, adventurer sheepo?: ")
+    name = ui.get_single_input("What is your name, adventurer sheepo?")
     player["name"] = name
 
-    available_icons = ["M","F","H","S"]
+    available_icons = ["M","F","H","S","P"]
+    icons_label = "Available icons to select"
+    ui.print_choose_from_list(icons_label, available_icons)
+    icon = ui.get_single_input("Please select your icon")
+    player["icon"] = available_icons[int(icon)-1]
+
     available_races = ["black_sheep", "normal_sheep", "rainbow_sheep", "elephant"]
+    races_label = "Available races to select"
+    ui.print_choose_from_list(races_label, available_races)
+    race = ui.get_single_input("Please select your race")
+    player["race"] = available_races[int(race)-1]
 
-    player["icon"] = "P"
-    # '''
-    # Creates a 'player' dictionary for storing all player related informations - i.e. player icon, player position.
-    # Fell free to extend this dictionary!
-
-    # Returns:
-    # dictionary
-    # '''
     return player
 
 def create_map(width, height):
@@ -41,6 +44,16 @@ def create_map(width, height):
         game_map.append(temp_row)
 
     return game_map
+
+def create_player_map(game_map):
+    player_map = copy.deepcopy(game_map)
+    room_numbers = [str(x+1) for x in range(NO_OF_MAP_SLICES_HOR*NO_OF_MAP_SLICES_VER)]
+    for row_index in range(len(player_map)):
+        for column_index in range(len(player_map[row_index])):
+            if player_map[row_index][column_index] in room_numbers:
+                player_map[row_index][column_index] = FILLER
+
+    return player_map
 
 def is_room_coord_valid(room_coords, room_width, room_height, max_width, max_height):
     if max_width - (room_coords[0]+room_width) > 0 and max_height - (room_coords[1]+room_height) > 0:
@@ -177,19 +190,12 @@ def gate_generator_south(game_map, rooms_coordinates, room_number):
 
     return (final_col, final_row)
 
-
 def insert_into_map(game_map, symbol, x, y):
     game_map[y][x] = symbol
 
-def put_player_on_board(board, player):
-    '''
-    Modifies the game board by placing the player icon at its coordinates.
+def put_player_on_board(game_map, player, player_coords):
+    game_map[player_coords[0]][player_coords[1]] = player["icon"]
 
-    Args:
-    list: The game board
-    dictionary: The player information containing the icon and coordinates
-
-    Returns:
-    Nothing
-    '''
-    pass
+def get_init_player_coord(rooms_coordinates, room_number):
+    player_coords = random.choice(rooms_coordinates[room_number-1])
+    return player_coords
