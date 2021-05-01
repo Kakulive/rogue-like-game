@@ -8,11 +8,11 @@ NO_OF_MAP_SLICES_VER = 3
 NO_OF_MAP_SLICES_HOR = 3
 MIN_ROOM_WIDTH = 6
 MIN_ROOM_HEIGHT = 6
-# FILLER = color("-", fg="red")
-# WALL_SYMBOL = "\033[91m" + "%" + "\033[0m"
-FILLER = "-"
-WALL_SYMBOL = "W"
-GATE_SYMBOL = "]"
+EMPTY_SPACE = " "
+FILLER = "\u001b[32m,\u001b[37m"
+WALL_SYMBOL = "\u001b[34mW\u001b[37m"
+GATE_SYMBOL = "\u001b[35m]\u001b[37m"
+# GATE_SYMBOL = "\u001b[33m]u001b[37m"
 
 def create_player(player_init_coords):
     player = {"hp":30, "atck":15, "load":150}
@@ -40,14 +40,14 @@ def create_map(width, height):
     for y in range(height):
         temp_row = []
         for x in range(width):
-            temp_row.append(FILLER)
+            temp_row.append(EMPTY_SPACE)
         game_map.append(temp_row)
 
     return game_map
 
 def create_player_map(game_map):
     player_map = copy.deepcopy(game_map)
-    room_numbers = [str(x+1) for x in range(NO_OF_MAP_SLICES_HOR*NO_OF_MAP_SLICES_VER)]
+    room_numbers = [str(x + 1) for x in range(NO_OF_MAP_SLICES_HOR * NO_OF_MAP_SLICES_VER)]
     for row_index in range(len(player_map)):
         for column_index in range(len(player_map[row_index])):
             if player_map[row_index][column_index] in room_numbers:
@@ -199,3 +199,92 @@ def put_player_on_board(game_map, player, player_coords):
 def get_init_player_coord(rooms_coordinates, room_number):
     player_coords = random.choice(rooms_coordinates[room_number-1])
     return player_coords
+
+def make_move(key, player_position, is_running):
+    if key == 'b':
+        is_running = False
+    elif key == "w":
+        player_position[0] -= 1 
+    elif key == "s":
+        player_position[0] += 1 
+    elif key == "a":
+        player_position[1] -= 1 
+    elif key == "d":
+        player_position[1] += 1 
+    return player_position, is_running
+
+def is_not_wall(player_map, new_player_position):
+    row = new_player_position[1] 
+    col = new_player_position[0]
+    return player_map[col][row] != WALL_SYMBOL and player_map[col][row] != EMPTY_SPACE 
+
+def is_gate(player_map, new_player_position):
+    row = new_player_position[1]
+    col = new_player_position[0]
+    return player_map[col][row] == GATE_SYMBOL
+
+def gate_travel(gates_coordinates, player_position):
+    if player_position == gates_coordinates["12"]:
+        player_position = copy.deepcopy(gates_coordinates["21"])
+        player_position[1] += 1
+    elif player_position == gates_coordinates["21"]:
+        player_position = copy.deepcopy(gates_coordinates["12"])
+        player_position[1] -= 1
+    
+    elif player_position == gates_coordinates["23"]:
+        player_position = copy.deepcopy(gates_coordinates["32"])
+        player_position[1] += 1
+    elif player_position == gates_coordinates["32"]:
+        player_position = copy.deepcopy(gates_coordinates["23"])
+        player_position[1] -= 1
+
+    elif player_position == gates_coordinates["36"]:
+        player_position = copy.deepcopy(gates_coordinates["63"])
+        player_position[0] += 1
+    elif player_position == gates_coordinates["63"]:
+        player_position = copy.deepcopy(gates_coordinates["36"])
+        player_position[0] -= 1
+
+    elif player_position == gates_coordinates["69"]:
+        player_position = copy.deepcopy(gates_coordinates["96"])
+        player_position[0] += 1
+    elif player_position == gates_coordinates["96"]:
+        player_position = copy.deepcopy(gates_coordinates["69"])
+        player_position[0] -= 1
+
+
+    elif player_position == gates_coordinates["98"]:
+        player_position = copy.deepcopy(gates_coordinates["89"])
+        player_position[1] -= 1
+    elif player_position == gates_coordinates["89"]:
+        player_position = copy.deepcopy(gates_coordinates["98"])
+        player_position[1] += 1
+
+    elif player_position == gates_coordinates["87"]:
+        player_position = copy.deepcopy(gates_coordinates["78"])
+        player_position[1] -= 1
+    elif player_position == gates_coordinates["78"]:
+        player_position = copy.deepcopy(gates_coordinates["87"])
+        player_position[1] += 1
+
+    elif player_position == gates_coordinates["74"]:
+        player_position = copy.deepcopy(gates_coordinates["47"])
+        player_position[0] -= 1
+    elif player_position == gates_coordinates["47"]:
+        player_position = copy.deepcopy(gates_coordinates["74"])
+        player_position[0] += 1
+
+    elif player_position == gates_coordinates["45"]:
+        player_position = copy.deepcopy(gates_coordinates["54"])
+        player_position[1] += 1
+    elif player_position == gates_coordinates["54"]:
+        player_position = copy.deepcopy(gates_coordinates["45"])
+        player_position[1] -= 1
+
+    return player_position
+
+def clear_position(old_player_position, player_map):
+    row = old_player_position[1]
+    col = old_player_position[0]
+    player_map[col][row] = FILLER
+    
