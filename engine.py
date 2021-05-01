@@ -1,6 +1,7 @@
 import random
 import ui as ui
 import copy
+import itertools
 
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
@@ -12,7 +13,6 @@ EMPTY_SPACE = " "
 FILLER = "\u001b[32m,\u001b[37m"
 WALL_SYMBOL = "\u001b[34mW\u001b[37m"
 GATE_SYMBOL = "\u001b[35m]\u001b[37m"
-# GATE_SYMBOL = "\u001b[33m]u001b[37m"
 
 def create_player(player_init_coords):
     player = {"hp":30, "atck":15, "load":150}
@@ -45,13 +45,18 @@ def create_map(width, height):
 
     return game_map
 
+def remove_room_numbers(game_map):
+    room_numbers = [str(x + 1) for x in range(NO_OF_MAP_SLICES_HOR * NO_OF_MAP_SLICES_VER)]
+    for row_index in range(len(game_map)):
+        for column_index in range(len(game_map[row_index])):
+            if game_map[row_index][column_index] in room_numbers:
+                game_map[row_index][column_index] = FILLER
+
 def create_player_map(game_map):
     player_map = copy.deepcopy(game_map)
-    room_numbers = [str(x + 1) for x in range(NO_OF_MAP_SLICES_HOR * NO_OF_MAP_SLICES_VER)]
     for row_index in range(len(player_map)):
         for column_index in range(len(player_map[row_index])):
-            if player_map[row_index][column_index] in room_numbers:
-                player_map[row_index][column_index] = FILLER
+            player_map[row_index][column_index] = EMPTY_SPACE
 
     return player_map
 
@@ -283,8 +288,17 @@ def gate_travel(gates_coordinates, player_position):
 
     return player_position
 
+def reveal_player_map(game_map, player_map, player_coords):
+    line_of_sight = list(itertools.product([-1,0,1], repeat=2))
+    line_of_sight.remove((0,0))
+    for i in range(len(line_of_sight)):
+        col = copy.deepcopy(player_coords[1])
+        row = copy.deepcopy(player_coords[0])
+        new_col = col + line_of_sight[i][1]
+        new_row = row + line_of_sight[i][0]
+        player_map[new_row][new_col] = game_map[new_row][new_col]
+
 def clear_position(old_player_position, player_map):
     row = old_player_position[1]
     col = old_player_position[0]
     player_map[col][row] = FILLER
-    
