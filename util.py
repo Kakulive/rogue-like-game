@@ -30,3 +30,12 @@ def clear_screen():
     else:
         os.system('clear')
 
+def read_from_file(filename, color, separator=":"):
+    with open(filename, 'r' ) as file:
+        lines = file.readlines()
+        new_list = []
+        for element in lines:
+            element_list = element.replace("\n", "").split(separator)
+            element_list[0] = f"{color}{element_list[0]}\u001b[37m"
+            new_list.append(element_list)
+    return new_list

@@ -1,2 +1,5 @@
-dagger;weapon;15;20;0
-apple;food;0;5;15
+D:dagger:weapon:15:20:0
+A:apple:food:0:5:15
+S:sword:weapon:20:40:0
+P:potion:food:0:10:40
+B:bow:weapon:10:10:0
