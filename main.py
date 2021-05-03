@@ -43,6 +43,7 @@ def generate_player(game_map, player_map, rooms_coordinates):
     player_coords = engine.get_init_player_coord(rooms_coordinates, 1)
     player = engine.create_player(player_coords)
     engine.put_player_on_board(player_map, player, player_coords)
+    engine.reveal_player_map(game_map, player_map, player["coords"])
     return player
 
 def gameplay(game_map, player_map, player, gates_coordinates):
@@ -57,29 +58,29 @@ def gameplay(game_map, player_map, player, gates_coordinates):
         key = util.key_pressed()
         new_player_position, is_running = engine.make_move(key, player_position, is_running)
     
-        if engine.is_gate(player_map, new_player_position) == True:
+        if engine.is_gate(game_map, new_player_position) == True:
             player["coords"] = engine.gate_travel(gates_coordinates, new_player_position)
             engine.clear_position(old_player_position, player_map)
 
-        elif engine.is_not_wall(player_map, new_player_position) == True:
+        elif engine.is_not_wall(game_map, new_player_position) == True:
             player["coords"] = new_player_position
             engine.clear_position(old_player_position, player_map)
 
         engine.put_player_on_board(player_map, player, player["coords"])
+        engine.reveal_player_map(game_map, player_map, player["coords"])
         util.clear_screen()
-
 
 def main():
     ui.main_screen()
-    
     game_map, rooms_coordinates, gates_coordinates = init_game_map()
+    engine.remove_room_numbers(game_map)
     player_map = engine.create_player_map(game_map)
     player = generate_player(game_map, player_map, rooms_coordinates)
     gameplay(game_map, player_map, player, gates_coordinates)
     # ui.print_map(game_map)
     # print(gates_coordinates)
     # print(player)
-    
+
 
 if __name__ == '__main__':
     main()
