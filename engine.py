@@ -20,9 +20,12 @@ DEFAULT_ATTACK = 15
 
 ITEMS_COORD_INDEX = -1
 ITEMS_ATCK_INDEX = 3
+MONSTER_COORD_INDEX = -1
+MONSTER_HP_INDEX = 4
+MONSTER_ATTACK_INDEX = 3
 
 def create_player(player_init_coords):
-    player = {"hp":30, "atck":15, "load":150}
+    player = {"hp":30, "atck":15, "load":150, "max_hp": 30}
     player["coords"] = list(player_init_coords)
 
     name = ui.get_single_input("What is your name, adventurer sheepo?")
@@ -241,6 +244,23 @@ def is_item(game_map, new_player_position, items):
             return True
     return False
 
+def is_enemy(game_map, new_player_position, monsters):
+    for element in monsters:
+        if monsters[element][MONSTER_COORD_INDEX] == new_player_position:
+            return True
+    return False
+
+def is_player_alive(player):
+    return player["hp"] > 0
+    
+def is_enemy_alive(enemy):
+    return int(enemy[MONSTER_HP_INDEX]) > 0
+
+def monster_check(new_player_position, monsters):
+    for key in monsters:
+        if monsters[key][MONSTER_COORD_INDEX] == new_player_position:
+            return monsters[key].copy()
+
 def check_inventory(key):
     return key == 'i'
 
@@ -373,6 +393,14 @@ def remove_item(game_map, player_map, items, coordinates):
     ui.remove_from_map(game_map, coordinates, FILLER)
     ui.remove_from_map(player_map, coordinates, FILLER)
 
+def remove_monster(game_map, player_map, monsters, coordinates):
+    for element in monsters:
+        if monsters[element][MONSTER_COORD_INDEX] == coordinates:
+            key = element
+    monsters.pop(key)
+    ui.remove_from_map(game_map, coordinates, FILLER)
+    ui.remove_from_map(player_map, coordinates, FILLER)
+
 def inventory_remove_check(item_key):
     return item_key == 'r'
 
@@ -383,3 +411,19 @@ def get_player_attack(player, inventory):
     player["atck"] = DEFAULT_ATTACK
     for key in inventory:
         player["atck"] += int(inventory[key][ITEMS_ATCK_INDEX])
+
+def battle(player, enemy, player_move, is_retreat):
+    player_hp = int(player['hp'])
+    enemy_hp = int(enemy[MONSTER_HP_INDEX])
+    if player_move == "1":
+        enemy_hp -= int(player['atck'])
+        enemy[MONSTER_HP_INDEX] = enemy_hp
+        if is_enemy_alive(enemy) == False:
+            return is_retreat
+        else:
+            player_hp -= int(enemy[MONSTER_ATTACK_INDEX]) 
+            player['hp'] = player_hp
+    elif player_move == "2":
+        is_retreat = True
+        return is_retreat
+    return is_retreat
