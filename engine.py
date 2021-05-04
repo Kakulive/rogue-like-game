@@ -2,11 +2,13 @@ import random
 import ui as ui
 import copy
 import itertools
+import util as util
 
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
 NO_OF_MAP_SLICES_VER = 3
 NO_OF_MAP_SLICES_HOR = 3
+NO_OF_ROOMS = NO_OF_MAP_SLICES_VER*NO_OF_MAP_SLICES_HOR
 MIN_ROOM_WIDTH = 6
 MIN_ROOM_HEIGHT = 6
 EMPTY_SPACE = " "
@@ -14,8 +16,16 @@ FILLER = "\u001b[32m,\u001b[37m"
 WALL_SYMBOL = "\u001b[34mW\u001b[37m"
 GATE_SYMBOL = "\u001b[35m]\u001b[37m"
 
+DEFAULT_ATTACK = 15
+
+ITEMS_COORD_INDEX = -1
+ITEMS_ATCK_INDEX = 3
+MONSTER_COORD_INDEX = -1
+MONSTER_HP_INDEX = 4
+MONSTER_ATTACK_INDEX = 3
+
 def create_player(player_init_coords):
-    player = {"hp":30, "atck":15, "load":150}
+    player = {"hp":30, "atck":15, "load":150, "max_hp": 30}
     player["coords"] = list(player_init_coords)
 
     name = ui.get_single_input("What is your name, adventurer sheepo?")
@@ -218,15 +228,41 @@ def make_move(key, player_position, is_running):
         player_position[1] += 1 
     return player_position, is_running
 
-def is_not_wall(player_map, new_player_position):
+def is_not_wall(game_map, new_player_position):
     row = new_player_position[1] 
     col = new_player_position[0]
-    return player_map[col][row] != WALL_SYMBOL and player_map[col][row] != EMPTY_SPACE 
+    return game_map[col][row] != WALL_SYMBOL and game_map[col][row] != EMPTY_SPACE 
 
-def is_gate(player_map, new_player_position):
+def is_gate(game_map, new_player_position):
     row = new_player_position[1]
     col = new_player_position[0]
-    return player_map[col][row] == GATE_SYMBOL
+    return game_map[col][row] == GATE_SYMBOL
+
+def is_item(game_map, new_player_position, items):
+    for element in items:
+        if items[element][ITEMS_COORD_INDEX] == new_player_position:
+            return True
+    return False
+
+def is_enemy(game_map, new_player_position, monsters):
+    for element in monsters:
+        if monsters[element][MONSTER_COORD_INDEX] == new_player_position:
+            return True
+    return False
+
+def is_player_alive(player):
+    return player["hp"] > 0
+    
+def is_enemy_alive(enemy):
+    return int(enemy[MONSTER_HP_INDEX]) > 0
+
+def monster_check(new_player_position, monsters):
+    for key in monsters:
+        if monsters[key][MONSTER_COORD_INDEX] == new_player_position:
+            return monsters[key].copy()
+
+def check_inventory(key):
+    return key == 'i'
 
 def gate_travel(gates_coordinates, player_position):
     if player_position == gates_coordinates["12"]:
@@ -302,3 +338,92 @@ def clear_position(old_player_position, player_map):
     row = old_player_position[1]
     col = old_player_position[0]
     player_map[col][row] = FILLER
+
+def get_random_element(iterable):
+    return random.choice(iterable)
+
+def generate_monsters(rooms_coordinates):
+    monsters_list = util.read_from_file("monsters.csv", "\u001b[31m")
+    monster_number = 1
+    monsters = {}
+    for i in range((NO_OF_ROOMS-1)*2):
+        temp_monster = []
+
+        random_enemy = get_random_element(monsters_list).copy()
+        temp_monster.append(random_enemy)
+
+        temp_coordinates = get_random_element(rooms_coordinates[((monster_number-1)//2)])
+        temp_monster[0].append(list(temp_coordinates))
+
+        monsters["monster_"+str(monster_number)] = temp_monster[0]
+        monster_number += 1
+
+    return monsters
+
+def generate_items(rooms_coordinates):
+    items_list = util.read_from_file("all_items.csv", "\u001b[33m")
+    item_number = 1
+    items = {}
+    for i in range(NO_OF_ROOMS*2):
+        temp_item = []
+
+        random_item = get_random_element(items_list).copy()
+        temp_item.append(random_item)
+
+        temp_coordinates = get_random_element(rooms_coordinates[((item_number-1)//2)])
+        temp_item[0].append(list(temp_coordinates))
+
+        items["item_"+str(item_number)] = temp_item[0]
+        item_number += 1
+    
+    return items
+
+def add_item_to_inventory(player_position, inventory, items):
+    item_number = len(inventory) + 1
+    for element in items:
+        if items[element][ITEMS_COORD_INDEX] == player_position:
+            key = element
+    inventory["item_" + str(item_number)] = items[key]
+     
+def remove_item(game_map, player_map, items, coordinates):
+    for element in items:
+        if items[element][ITEMS_COORD_INDEX] == coordinates:
+            key = element
+    items.pop(key)
+    ui.remove_from_map(game_map, coordinates, FILLER)
+    ui.remove_from_map(player_map, coordinates, FILLER)
+
+def remove_monster(game_map, player_map, monsters, coordinates):
+    for element in monsters:
+        if monsters[element][MONSTER_COORD_INDEX] == coordinates:
+            key = element
+    monsters.pop(key)
+    ui.remove_from_map(game_map, coordinates, FILLER)
+    ui.remove_from_map(player_map, coordinates, FILLER)
+
+def inventory_remove_check(item_key):
+    return item_key == 'r'
+
+def remove_item_from_inventory(inventory, item_to_remove):
+    inventory.pop(item_to_remove)
+
+def get_player_attack(player, inventory):
+    player["atck"] = DEFAULT_ATTACK
+    for key in inventory:
+        player["atck"] += int(inventory[key][ITEMS_ATCK_INDEX])
+
+def battle(player, enemy, player_move, is_retreat):
+    player_hp = int(player['hp'])
+    enemy_hp = int(enemy[MONSTER_HP_INDEX])
+    if player_move == "1":
+        enemy_hp -= int(player['atck'])
+        enemy[MONSTER_HP_INDEX] = enemy_hp
+        if is_enemy_alive(enemy) == False:
+            return is_retreat
+        else:
+            player_hp -= int(enemy[MONSTER_ATTACK_INDEX]) 
+            player['hp'] = player_hp
+    elif player_move == "2":
+        is_retreat = True
+        return is_retreat
+    return is_retreat
