@@ -74,7 +74,7 @@ def gameplay(player_map, player):
         util.clear_screen()
 
 
-def main():
+def main():  
     ui.main_screen()
     
     game_map, rooms_coordinates, gates_coordinates = init_game_map()

@@ -2,6 +2,10 @@ import random
 import ui as ui
 import copy
 
+
+player_inventory = []
+
+
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
 NO_OF_MAP_SLICES_VER = 3
