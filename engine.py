@@ -3,6 +3,8 @@ import ui as ui
 import copy
 import itertools
 import util as util
+import time
+import sys
 
 
 player_inventory = []
@@ -19,6 +21,8 @@ EMPTY_SPACE = " "
 FILLER = "\u001b[32m,\u001b[37m"
 WALL_SYMBOL = "\u001b[34mW\u001b[37m"
 GATE_SYMBOL = "\u001b[35m]\u001b[37m"
+BOSS_SYMBOL = "\u001b[31mB\u001b[37m"
+BOSS_ROOM_INDEX = 4
 
 DEFAULT_ATTACK = 15
 
@@ -52,6 +56,28 @@ def create_player(player_init_coords):
     player["race"] = available_races[int(race)-1]
 
     return player
+
+def create_boss(rooms_coordinates):
+    boss = [BOSS_SYMBOL,"BOBOL","ENEMY",20,300]
+    boss_room = rooms_coordinates[BOSS_ROOM_INDEX].copy()
+    min_col = 9999
+    max_row = 0
+    for col,row in boss_room:
+        if col < min_col:
+            min_col = col
+        if row > max_row:
+            max_row = row
+    
+    min_col += 1
+    
+    boss_coordinates = []
+    for y in range(min_col,min_col+3):
+        for x in range(max_row-3,max_row):
+            boss_coordinates.append((y,x))
+    
+    boss.append(boss_coordinates)
+
+    return boss
 
 def create_map(width, height):
     game_map = []
@@ -223,9 +249,14 @@ def get_init_player_coord(rooms_coordinates, room_number):
     player_coords = random.choice(rooms_coordinates[room_number-1])
     return player_coords
 
-def make_move(key, player_position, is_running):
+def make_move(key, player_position, is_running, player, inventory):
     if key == 'b':
-        is_running = False
+        util.clear_screen()
+        sys.exit()
+    elif key == 'g':
+        player['max_hp'] = 10000
+        player['hp'] = 10000
+        inventory["OP stick"] = ["O", "OP Stick", "weapon", "10000", "1", "0", (1,1)] 
     elif key == "w":
         player_position[0] -= 1 
     elif key == "s":
@@ -255,6 +286,12 @@ def is_item(game_map, new_player_position, items):
 def is_enemy(game_map, new_player_position, monsters):
     for element in monsters:
         if monsters[element][MONSTER_COORD_INDEX] == new_player_position:
+            return True
+    return False
+
+def is_boss(game_map, new_player_position, boss):
+    for coord in boss[MONSTER_COORD_INDEX]:
+        if list(coord) == new_player_position:
             return True
     return False
 
@@ -425,11 +462,17 @@ def battle(player, enemy, player_move, is_retreat):
     enemy_hp = int(enemy[MONSTER_HP_INDEX])
     if player_move == "1":
         enemy_hp -= int(player['atck'])
+        ui.print_players_attack_result(player,enemy)
+        time.sleep(3)
         enemy[MONSTER_HP_INDEX] = enemy_hp
         if is_enemy_alive(enemy) == False:
+            ui.print_enemy_defeated()
+            ui.press_enter_to_continue()
             return is_retreat
         else:
-            player_hp -= int(enemy[MONSTER_ATTACK_INDEX]) 
+            player_hp -= int(enemy[MONSTER_ATTACK_INDEX])
+            ui.print_enemys_attack_result(player, enemy)
+            time.sleep(3)
             player['hp'] = player_hp
     elif player_move == "2":
         is_retreat = True
