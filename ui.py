@@ -21,6 +21,39 @@ def print_map(game_map):
         print(" ".join(row))
     print("\n\n")
 
+def valid_input_icons(message):
+    while True:
+        user_input = input(f"{message}: ")
+        try:
+            user_input = int(user_input)
+        except:
+            print("You have to type number from 1 to 5")
+            print("\n")
+            continue
+
+        if user_input == 1 or user_input == 2 or user_input == 3 or user_input == 4 or user_input == 5:
+            return user_input
+        else:
+            print("You have to choose correct number")
+            print("\n")
+
+def valid_input_races(message):
+    while True:
+        user_input = input(f"{message}: ")
+        try:
+            user_input = int(user_input)
+        except:
+            print("You have to type number from 1 to 4")
+            print("\n")
+            continue
+
+        if user_input == 1 or user_input == 2 or user_input == 3 or user_input == 4:
+            return user_input
+        else:
+            print("You have to choose correct number")
+            print("\n")
+        
+
 def get_single_input(message):
     user_input = input (f"{message}: ")
     print("\n")
