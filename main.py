@@ -42,7 +42,7 @@ def init_game_map():
                          "45":gate_45, "54":gate_54} 
 
     engine.remove_room_numbers(game_map)
-    return game_map, rooms_coordinates, gates_coordinates, items, monsters1
+    return game_map, rooms_coordinates, gates_coordinates, items, monsters
 
 def generate_player(game_map, player_map, rooms_coordinates):
     player_coords = engine.get_init_player_coord(rooms_coordinates, 1)
@@ -72,7 +72,7 @@ def gameplay(game_map, player_map, player, gates_coordinates, items, monsters, i
                 item_to_remove = ui.get_single_input("Which item to remove?")
                 engine.remove_item_from_inventory(inventory, item_to_remove)
                 ui.print_inventory(player, inventory)
-            ui.get_single_input("Press ENTER to continue...")
+            input("Press ENTER to continue...")
             continue
 
         new_player_position, is_running = engine.make_move(key, player_position, is_running)
@@ -82,6 +82,13 @@ def gameplay(game_map, player_map, player, gates_coordinates, items, monsters, i
             engine.remove_item(game_map, player_map, items, player["coords"])
             engine.clear_position(old_player_position, player_map)
 
+        elif engine.is_enemy(game_map, new_player_position, monsters) == True:
+            victory = battlemode(player, monsters, new_player_position)
+            if victory == True:
+                player["coords"] = new_player_position
+                engine.remove_monster(game_map, player_map, monsters, player["coords"])
+                engine.clear_position(old_player_position, player_map)
+
         elif engine.is_gate(game_map, new_player_position) == True:
             player["coords"] = engine.gate_travel(gates_coordinates, new_player_position)
             engine.clear_position(old_player_position, player_map)
@@ -90,11 +97,28 @@ def gameplay(game_map, player_map, player, gates_coordinates, items, monsters, i
             player["coords"] = new_player_position
             engine.clear_position(old_player_position, player_map)
 
+        if engine.is_player_alive(player) == False:
+            ui.print_game_over()
+            
         engine.put_player_on_board(player_map, player, player["coords"])
         engine.reveal_player_map(game_map, player_map, player["coords"])
         util.clear_screen()
 
-def main():  
+def battlemode(player, monsters, new_player_position):
+    util.clear_screen()
+    enemy = engine.monster_check(new_player_position, monsters)
+    is_retreat = False
+    while (engine.is_player_alive(player) == True and engine.is_enemy_alive(enemy) == True) and is_retreat == False:
+        util.clear_screen()
+        ui.print_battle(player, enemy)
+        player_move = util.key_pressed()
+        is_retreat = engine.battle(player, enemy, player_move, is_retreat)
+    if is_retreat == False:
+        return True
+    else:
+        return False 
+
+def main():
     ui.main_screen()
 
     game_map, rooms_coordinates, gates_coordinates, items, monsters = init_game_map()
