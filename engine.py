@@ -33,18 +33,22 @@ def create_player(player_init_coords):
     player["coords"] = list(player_init_coords)
 
     name = ui.get_single_input("What is your name, adventurer sheepo?")
-    player["name"] = name
+    player["name"] = name.capitalize()
 
     available_icons = ["M","F","H","S","P"]
     icons_label = "Available icons to select"
     ui.print_choose_from_list(icons_label, available_icons)
-    icon = ui.get_single_input("Please select your icon")
+    icon = ui.get_single_input("Please select your icon") 
+    
     player["icon"] = available_icons[int(icon)-1]
+
 
     available_races = ["black_sheep", "normal_sheep", "rainbow_sheep", "elephant"]
     races_label = "Available races to select"
     ui.print_choose_from_list(races_label, available_races)
     race = ui.get_single_input("Please select your race")
+
+
     player["race"] = available_races[int(race)-1]
 
     return player

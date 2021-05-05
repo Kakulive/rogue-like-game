@@ -20,7 +20,7 @@ def print_map(game_map):
     print("\n\n")
 
 def get_single_input(message):
-    user_input = input(f"{message}: ")
+    user_input = input (f"{message}: ")
     print("\n")
     
     return user_input
@@ -42,11 +42,11 @@ def remove_from_map(game_map, coordinates, symbol):
 
 def print_inventory(player, inventory):
     print("Your current inventory:")
-    print(f"{' | '.join(ITEMS_HEADERS[NAME_INDEX:])}\n")
+    print(f"{'|'.join(ITEMS_HEADERS[NAME_INDEX:])}\n")
     total_load = 0
     for key in inventory:
         total_load += int(inventory[key][WEIGHT_INDEX])
-        print(f"{key}: {'|'.join(inventory[key][NAME_INDEX:COORD_INDEX])}")
+        print('  |  '.join(inventory[key][NAME_INDEX:COORD_INDEX]))
     print("\n\nPress (R) to remove item\n\n")
     print(f"Total weight: {total_load}/{player['load']}")
 
