@@ -6,6 +6,10 @@ import util as util
 import time
 import sys
 
+
+player_inventory = []
+
+
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
 NO_OF_MAP_SLICES_VER = 3
@@ -28,23 +32,27 @@ MONSTER_COORD_INDEX = -1
 MONSTER_HP_INDEX = 4
 MONSTER_ATTACK_INDEX = 3
 
+
+
 def create_player(player_init_coords):
     player = {"hp":30, "atck":15, "load":150, "max_hp": 30}
     player["coords"] = list(player_init_coords)
 
     name = ui.get_single_input("What is your name, adventurer sheepo?")
-    player["name"] = name
+    player["name"] = name.capitalize()
 
     available_icons = ["M","F","H","S","P"]
     icons_label = "Available icons to select"
     ui.print_choose_from_list(icons_label, available_icons)
-    icon = ui.get_single_input("Please select your icon")
+    icon = ui.valid_input_icons("Please select your icon") 
     player["icon"] = available_icons[int(icon)-1]
 
     available_races = ["black_sheep", "normal_sheep", "rainbow_sheep", "elephant"]
     races_label = "Available races to select"
     ui.print_choose_from_list(races_label, available_races)
-    race = ui.get_single_input("Please select your race")
+    race = ui.valid_input_races("Please select your race")
+
+
     player["race"] = available_races[int(race)-1]
 
     return player
