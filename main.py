@@ -87,7 +87,7 @@ def gameplay(game_map, player_map, player, gates_coordinates, items, monsters, i
 
         elif engine.is_boss(game_map, new_player_position, boss) == True:
             victory = boss_fight(player, boss, new_player_position)
-            if victory == True:
+            if victory == True and engine.is_player_alive(player) == True:
                 ui.print_victory_screen()
                 sys.exit()
 
@@ -108,6 +108,7 @@ def gameplay(game_map, player_map, player, gates_coordinates, items, monsters, i
 
         if engine.is_player_alive(player) == False:
             ui.print_game_over()
+            sys.exit()
             
         engine.put_player_on_board(player_map, player, player["coords"])
         engine.reveal_player_map(game_map, player_map, player["coords"])

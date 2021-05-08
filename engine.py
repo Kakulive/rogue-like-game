@@ -6,9 +6,7 @@ import util as util
 import time
 import sys
 
-
 player_inventory = []
-
 
 MAP_WIDTH = 45
 MAP_HEIGHT = 45
@@ -32,10 +30,8 @@ MONSTER_COORD_INDEX = -1
 MONSTER_HP_INDEX = 4
 MONSTER_ATTACK_INDEX = 3
 
-
-
 def create_player(player_init_coords):
-    player = {"hp":30, "atck":15, "load":150, "max_hp": 30}
+    player = {"hp":40, "max_hp": 40, "atck":15, "load":150}
     player["coords"] = list(player_init_coords)
 
     name = ui.get_single_input("What is your name, adventurer sheepo?")
@@ -52,7 +48,6 @@ def create_player(player_init_coords):
     ui.print_choose_from_list(races_label, available_races)
     race = ui.valid_input_races("Please select your race")
 
-
     player["race"] = available_races[int(race)-1]
 
     return player
@@ -67,14 +62,14 @@ def create_boss(rooms_coordinates):
             min_col = col
         if row > max_row:
             max_row = row
-    
+
     min_col += 1
-    
+
     boss_coordinates = []
     for y in range(min_col,min_col+3):
         for x in range(max_row-3,max_row):
             boss_coordinates.append((y,x))
-    
+
     boss.append(boss_coordinates)
 
     return boss
@@ -463,7 +458,7 @@ def battle(player, enemy, player_move, is_retreat):
     if player_move == "1":
         enemy_hp -= int(player['atck'])
         ui.print_players_attack_result(player,enemy)
-        time.sleep(3)
+        time.sleep(2)
         enemy[MONSTER_HP_INDEX] = enemy_hp
         if is_enemy_alive(enemy) == False:
             ui.print_enemy_defeated()
@@ -472,7 +467,7 @@ def battle(player, enemy, player_move, is_retreat):
         else:
             player_hp -= int(enemy[MONSTER_ATTACK_INDEX])
             ui.print_enemys_attack_result(player, enemy)
-            time.sleep(3)
+            time.sleep(2)
             player['hp'] = player_hp
     elif player_move == "2":
         is_retreat = True
