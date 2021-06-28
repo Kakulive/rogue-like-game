@@ -64,6 +64,8 @@ def print_choose_from_list(label, choices):
     print(label)
     for index, value in enumerate(choices):
         print(f"({index +1}): {value}")
+    print("\n")
+
 
 def put_on_board(game_map, stuff):
     for key in stuff:

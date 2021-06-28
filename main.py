@@ -152,4 +152,5 @@ def main():
     gameplay(game_map, player_map, player, gates_coordinates, items, monsters, inventory, boss)
 
 if __name__ == '__main__':
+    util.clear_screen()
     main()
